@@ -115,6 +115,11 @@ static BOOL my_os_log_shim_enabled(void *addr) {
     self.title = @"Waiting for Logs...";
 
     // Toolbar buttons //
+    UIBarButtonItem *downloadButton = [UIBarButtonItem
+                                       flex_itemWithImage:[UIImage systemImageNamed:@"arrow.down.doc"]
+                                       target:self
+                                       action:@selector(downloadLogs)
+    ];
 
     UIBarButtonItem *scrollDown = [UIBarButtonItem
         flex_itemWithImage:FLEXResources.scrollToBottomIcon
@@ -127,7 +132,7 @@ static BOOL my_os_log_shim_enabled(void *addr) {
         action:@selector(showLogSettings)
     ];
 
-    [self addToolbarItems:@[scrollDown, settings]];
+    [self addToolbarItems:@[downloadButton, scrollDown, settings]];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -188,6 +193,14 @@ static BOOL my_os_log_shim_enabled(void *addr) {
     if (wasNearBottom) {
         [self scrollToLastRow];
     }
+}
+
+- (void)downloadLogs {
+    NSMutableString *allLogs = [NSMutableString new];
+    for (int i; i < self.logMessages.filteredList.count; i++) {
+        [allLogs appendString:[NSString stringWithFormat: @"%@\n", self.logMessages.filteredList[i].messageText ?: @""]];
+    }
+    UIPasteboard.generalPasteboard.string = allLogs;
 }
 
 - (void)scrollToLastRow {
